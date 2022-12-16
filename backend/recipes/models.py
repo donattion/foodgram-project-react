@@ -35,9 +35,6 @@ class Ingredients(models.Model):
         max_length=20,
         verbose_name='Название',
     )
-    count = models.PositiveIntegerField(
-        verbose_name='Количество',
-    )
     units_of_measurement = models.CharField(
         max_length=20,
         verbose_name='Единицы измерения',
@@ -92,3 +89,33 @@ class Recipes(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+
+class RecipeIngredients(models.Model):
+    """Модель ингридиентов рецепта"""
+    ingredient = models.ForeignKey(
+        Ingredients,
+        on_delete=models.CASCADE,
+        verbose_name='Ингредиент',
+        related_name='recipe_ingredient',
+    )
+    recipe = models.ForeignKey(
+        Recipes,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт',
+        related_name='recipe_r',
+    )
+    count = models.PositiveIntegerField(
+        verbose_name='Количество ингредиента',
+    )
+
+    class Meta:
+        ordering = ('-id',)
+        verbose_name = 'Ингредиент рецепта'
+        verbose_name_plural = 'Ингредиенты рецепта'
+
+    def __str__(self):
+        return (
+            f'{self.ingredient.title} :: {self.ingredient.units_of_measurement}'
+            f' - {self.count}'
+        )

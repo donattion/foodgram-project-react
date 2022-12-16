@@ -29,6 +29,7 @@ class FavoritesList(models.Model):
         ]
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
+        default_related_name = 'favorites'
 
 
 class FollowsList(models.Model):
@@ -85,3 +86,4 @@ class ShoppingList(models.Model):
         ]
         verbose_name = 'Покупка'
         verbose_name_plural = 'Покупки'
+        default_related_name = 'shopping'

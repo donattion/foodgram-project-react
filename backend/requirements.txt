@@ -4,3 +4,4 @@ djangorestframework==3.12.4
 djoser==2.1.0
 drf-extra-fields==3.4.0
 drf-yasg==1.21.3
+django-filter==21.1

@@ -18,11 +18,11 @@ class TagsAdmin(admin.ModelAdmin):
 
 class IngredientsAdmin(admin.ModelAdmin):
     list_display = (
-        'title',
-        'units_of_measurement',
+        'name',
+        'measurement_unit',
     )
     list_filter = (
-        'title',
+        'name',
     )
     empty_value_display = '-пусто-'
 

@@ -29,7 +29,7 @@ class FavoritesList(models.Model):
         ]
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
-        default_related_name = 'favorites'
+        default_related_name = 'favor'
 
 
 class FollowsList(models.Model):

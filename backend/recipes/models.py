@@ -31,11 +31,11 @@ class Tags(models.Model):
 
 class Ingredients(models.Model):
     """Модель ингредиентов"""
-    title = models.CharField(
+    name = models.CharField(
         max_length=20,
         verbose_name='Название',
     )
-    units_of_measurement = models.CharField(
+    measurement_unit = models.CharField(
         max_length=20,
         verbose_name='Единицы измерения',
     )
@@ -45,7 +45,7 @@ class Ingredients(models.Model):
         verbose_name_plural = 'Игнредиенты'
 
     def __str__(self) -> str:
-        return self.title
+        return self.name
 
 
 class Recipes(models.Model):
@@ -67,7 +67,8 @@ class Recipes(models.Model):
     description = models.TextField(
         verbose_name='Описание',
     )
-    ingredients = models.TextField(
+    ingredients = models.ManyToManyField(
+        Ingredients,
         verbose_name='Ингредиенты',
     )
     tags = models.ManyToManyField(

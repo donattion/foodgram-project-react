@@ -1,38 +1,32 @@
-from django.shortcuts import render
-from rest_framework import viewsets
-from rest_framework import status
-from rest_framework.decorators import action
-from rest_framework.response import Response
+from django.db.models import Sum
 from django.http.response import HttpResponse
-from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import (
-    IsAuthenticatedOrReadOnly,
-    IsAuthenticated,
-)
+from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+from rest_framework.response import Response
 
-from recipes.models import Tags, Ingredients, Recipes
-from social.models import FollowsList
+from recipes.models import Ingredients, RecipeIngredients, Recipes, Tags
+from social.models import FavoritesList, FollowsList, ShoppingList
 from users.models import User
-from .serializers import (
-    TagsSerializer,
-    UsersSerializer,
-    SubscriptionsSerializer,
-    IngredientsSerializer,
-    RecipeReadSerializer,
-    CreateRecipesSerializer,
-    UserPostCreateSerializer,
-)
+
 from .filters import IngredientsFilter, RecipesFilter
-from .permissions import IsOwnerOrReadOnly
 from .pagination import Pagination
+from .permissions import IsOwnerOrReadOnly
+from .serializers import (CreateRecipesSerializer, FavoriteListSerializer,
+                          IngredientsSerializer, RecipeReadSerializer,
+                          ShoppingListSerializer, SubscriptionsSerializer,
+                          TagsSerializer, UserPostCreateSerializer,
+                          UserSerializer)
 
 
 class UserViewSet(UserViewSet):
     """Вывод пользователей"""
     queryset = User.objects.all()
-    serializer_class = UsersSerializer
+    serializer_class = UserSerializer
     pagination_class = Pagination
 
     def create(self, request):
@@ -47,6 +41,9 @@ class UserViewSet(UserViewSet):
                 serializer.data,
                 status=status.HTTP_201_CREATED
             )
+        return Response(
+            status=status.HTTP_404_NOT_FOUND
+        )
 
     @action(
         detail=True,
@@ -82,6 +79,10 @@ class UserViewSet(UserViewSet):
             return Response(
                 status=status.HTTP_204_NO_CONTENT
             )
+
+        return Response(
+            status=status.HTTP_404_NOT_FOUND
+        )
 
     @action(
         detail=False,
@@ -140,15 +141,80 @@ class RecipesViewSet(viewsets.ModelViewSet):
             return RecipeReadSerializer
         return CreateRecipesSerializer
 
+    @action(
+        detail=False,
+        methods=['GET']
+    )
+    def download_shopping_cart(self, request):
+        ingredients = RecipeIngredients.objects.filter(
+            recipe__shopping__user=request.user
+        ).order_by('ingredient__name').values(
+            'ingredient__name',
+            'ingredient__measurement_unit',
+        ).annotate(amount=Sum('count'))
+        return self.send_message(ingredients)
+
     @staticmethod
     def send_message(ingredients):
+        shopping_list = 'Требуется к покупке:'
         for ingredient in ingredients:
             shopping_list += (
                 f"\n{ingredient['ingredient__name']} "
                 f"({ingredient['ingredient__measurement_unit']}) - "
-                f"{ingredient['amount']}"
+                f"{ingredient['count']}"
             )
-        file = 'shopping_list.txt'
+        file = 'shopping_list'
         response = HttpResponse(shopping_list, content_type='text/plain')
         response['Content-Disposition'] = f'attachment; filename="{file}.txt"'
-        return
+        return response
+
+    @action(
+        detail=True,
+        methods=('POST',),
+        permission_classes=[IsAuthenticated]
+    )
+    def shopping_cart(self, request, pk):
+        context = {'request': request}
+        recipe = get_object_or_404(Recipes, id=pk)
+        data = {
+            'user': request.user.id,
+            'recipe': recipe.id
+        }
+        serializer = ShoppingListSerializer(data=data, context=context)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @shopping_cart.mapping.delete
+    def destroy_shopping_cart(self, request, pk):
+        get_object_or_404(
+            ShoppingList,
+            user=request.user.id,
+            recipe=get_object_or_404(Recipes, id=pk)
+        ).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        detail=True,
+        methods=('POST',),
+        permission_classes=[IsAuthenticated])
+    def favorite(self, request, pk):
+        context = {"request": request}
+        recipe = get_object_or_404(Recipes, id=pk)
+        data = {
+            'user': request.user.id,
+            'recipe': recipe.id
+        }
+        serializer = FavoriteListSerializer(data=data, context=context)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @favorite.mapping.delete
+    def destroy_favorite(self, request, pk):
+        get_object_or_404(
+            FavoritesList,
+            user=request.user,
+            recipe=get_object_or_404(Recipes, id=pk)
+        ).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

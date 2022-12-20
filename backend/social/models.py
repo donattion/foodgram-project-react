@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import UniqueConstraint, CheckConstraint, Q, F
+from django.db.models import CheckConstraint, F, Q, UniqueConstraint
 
 from recipes.models import Recipes
 from users.models import User
@@ -29,7 +29,6 @@ class FavoritesList(models.Model):
         ]
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
-        default_related_name = 'favor'
 
 
 class FollowsList(models.Model):
@@ -67,13 +66,13 @@ class ShoppingList(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='buyer',
+        related_name='shopping',
         verbose_name='Пользователь',
     )
     recipe = models.ForeignKey(
         Recipes,
         on_delete=models.CASCADE,
-        related_name='purchase',
+        related_name='shopping',
         verbose_name='Рецпет',
     )
 
@@ -86,4 +85,3 @@ class ShoppingList(models.Model):
         ]
         verbose_name = 'Покупка'
         verbose_name_plural = 'Покупки'
-        default_related_name = 'shopping'

@@ -1,16 +1,16 @@
 from django.contrib import admin
 
-from .models import Tags, Ingredients, Recipes
+from .models import Ingredients, RecipeIngredients, Recipes, Tags
 
 
 class TagsAdmin(admin.ModelAdmin):
     list_display = (
-        'title',
+        'name',
         'color',
         'slug',
     )
     search_fields = (
-        'title',
+        'name',
         'slug',
     )
     empty_value_display = '-пусто-'
@@ -30,23 +30,31 @@ class IngredientsAdmin(admin.ModelAdmin):
 class RecipesAdmin(admin.ModelAdmin):
     list_display = (
         'author',
-        'title',
+        'name',
         'get_tags',
     )
     list_filter = (
         'author',
-        'title',
+        'name',
         'tags',
     )
     empty_value_display = '-пусто-'
 
     def get_tags(self, obj):
         return ', '.join([
-                tags.title for tags
-                in obj.tags.all()
-            ])
+            tags.name for tags
+            in obj.tags.all()
+        ])
+
+
+class RecipeIngredientsAdmin(admin.ModelAdmin):
+    list_display = (
+        'ingredient',
+        'recipe',
+    )
 
 
 admin.site.register(Tags, TagsAdmin)
 admin.site.register(Ingredients, IngredientsAdmin)
 admin.site.register(Recipes, RecipesAdmin)
+admin.site.register(RecipeIngredients, RecipeIngredientsAdmin)

@@ -1,6 +1,5 @@
 import os
 
-
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = 'django-insecure-l07d1p5*fn36ifq$h6we8^ihob%7+)#@rn3ccwder_$#ap6h&p'
@@ -24,8 +23,8 @@ REST_FRAMEWORK = {
 DJOSER = {
     "SERIALIZERS": {
         "user_create": "api.serializers.UserCreateSerializer",
-        "user": "api.serializers.UsersSerializer",
-        "current_user": "api.serializers.UsersSerializer",
+        "user": "api.serializers.UserSerializer",
+        "current_user": "api.serializers.UserSerializer",
     },
 
     "PERMISSIONS": {

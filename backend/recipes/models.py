@@ -5,7 +5,7 @@ from users.models import User
 
 class Tags(models.Model):
     """Модель тегов"""
-    title = models.CharField(
+    name = models.CharField(
         max_length=20,
         unique=True,
         verbose_name='Название',
@@ -26,7 +26,7 @@ class Tags(models.Model):
         verbose_name_plural = 'Теги'
 
     def __str__(self) -> str:
-        return self.title
+        return self.name
 
 
 class Ingredients(models.Model):
@@ -56,7 +56,7 @@ class Recipes(models.Model):
         related_name='user',
         verbose_name='Автор',
     )
-    title = models.CharField(
+    name = models.CharField(
         max_length=20,
         verbose_name='Название',
     )
@@ -64,18 +64,19 @@ class Recipes(models.Model):
         upload_to='recipes/',
         verbose_name='Изображение',
     )
-    description = models.TextField(
+    text = models.TextField(
         verbose_name='Описание',
     )
     ingredients = models.ManyToManyField(
         Ingredients,
+        through='RecipeIngredients',
         verbose_name='Ингредиенты',
     )
     tags = models.ManyToManyField(
         Tags,
         verbose_name='Теги',
     )
-    time = models.PositiveIntegerField(
+    cooking_time = models.PositiveIntegerField(
         verbose_name='Время приготовления',
     )
     pub_date = models.DateTimeField(
@@ -89,7 +90,7 @@ class Recipes(models.Model):
         verbose_name_plural = 'Рецепты'
 
     def __str__(self) -> str:
-        return self.title
+        return self.name
 
 
 class RecipeIngredients(models.Model):
@@ -117,6 +118,6 @@ class RecipeIngredients(models.Model):
 
     def __str__(self):
         return (
-            f'{self.ingredient.title} :: {self.ingredient.units_of_measurement}'
+            f'{self.ingredient.name} :: {self.ingredient.measurement_unit}'
             f' - {self.count}'
         )

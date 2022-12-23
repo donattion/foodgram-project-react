@@ -1,3 +1,6 @@
+from colorfield.fields import ColorField
+from django.core.validators import (MaxValueValidator, MinValueValidator,
+                                    RegexValidator)
 from django.db import models
 
 from users.models import User
@@ -10,9 +13,16 @@ class Tags(models.Model):
         unique=True,
         verbose_name='Название',
     )
-    color = models.CharField(
+    color = ColorField(
+        format='hex',
         max_length=7,
         unique=True,
+        validators=[
+            RegexValidator(
+                regex="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$",
+                message='Проверьте вводимый формат',
+            )
+        ],
         verbose_name='Цветовой HEX-код',
     )
     slug = models.SlugField(
@@ -76,7 +86,17 @@ class Recipes(models.Model):
         Tags,
         verbose_name='Теги',
     )
-    cooking_time = models.PositiveIntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
+        validators=[
+            MinValueValidator(
+                1,
+                message='Время приготовления не менее 1 минуты!'
+            ),
+            MaxValueValidator(
+                1441,
+                message='Время приготовления не более 24 часов!'
+            )
+        ],
         verbose_name='Время приготовления',
     )
     pub_date = models.DateTimeField(
@@ -105,9 +125,15 @@ class RecipeIngredients(models.Model):
         Recipes,
         on_delete=models.CASCADE,
         verbose_name='Рецепт',
-        related_name='recipe_r',
+        related_name='recipe_recipe',
     )
-    count = models.PositiveIntegerField(
+    count = models.PositiveSmallIntegerField(
+        validators=[
+            MinValueValidator(
+                1,
+                message='количество не может быть меньше 1'
+            )
+        ],
         verbose_name='Количество ингредиента',
     )
 

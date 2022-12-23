@@ -38,12 +38,12 @@ class UserSerializer(UserSerializer):
         )
 
     def get_is_subscribed(self, author):
-        if self.context.get('request').user.is_anonymous:
-            return False
-        return FollowsList.objects.filter(
-            user=self.context.get('request').user,
-            author=author
-        ).exists()
+        return (not self.context.get('request').user.is_anonymous
+                and FollowsList.objects.filter(
+                user=self.context.get('request').user,
+                author=author
+                ).exists()
+                )
 
 
 class UserCreateSerializer(UserCreateSerializer):
@@ -248,14 +248,24 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
         )
 
     def validate_tags(self, tags):
-        for tag in tags:
-            if not Tags.objects.filter(id=tag.id).exists():
-                raise serializers.ValidationError(
-                    'Этого тега не существует'
-                )
+        tags_ls = []
+        if tags:
+            for tag in tags:
+                if not Tags.objects.filter(id=tag.id).exists():
+                    raise serializers.ValidationError(
+                        'Этого тега не существует'
+                    )
+                if tag['id'] in tags_ls:
+                    raise serializers.ValidationError(
+                        'Этот тег уже есть'
+                    )
+                tags_ls.append(tag['id'])
             return tags
+        raise serializers.ValidationError(
+            'Не указаны теги'
+        )
 
-    def validate_cooking_time(self, cooking_time):
+    def validate_cooking_time(self, cooking_time: int):
         if cooking_time < 1:
             raise serializers.ValidationError(
                 'Время приготовления должно быть как минимум 1 минуту'
@@ -264,13 +274,21 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
 
     def validate_ingredients(self, ingredients):
         ingredients_ls = []
-        for ingredient in ingredients:
-            if ingredient['id'] in ingredients_ls:
-                raise serializers.ValidationError(
-                    'Этот ингредиент уже есть'
-                )
-            ingredients_ls.append(ingredient['id'])
-        return ingredients
+        if ingredients:
+            for ingredient in ingredients:
+                if not Ingredients.objects.filter(id=ingredient.id).exists():
+                    raise serializers.ValidationError(
+                        'Этого ингредиента не существует'
+                    )
+                if ingredient['id'] in ingredients_ls:
+                    raise serializers.ValidationError(
+                        'Этот ингредиент уже есть'
+                    )
+                ingredients_ls.append(ingredient['id'])
+            return ingredients
+        raise serializers.ValidationError(
+            'Не указаны ингредиенты'
+        )
 
     @staticmethod
     def create_ingredients(recipe, ingredients):
@@ -346,13 +364,15 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         ).data
 
     def get_is_favorited(self, obj):
-        if self.context.get('request').user.is_anonymous:
-            return False
-        return FavoritesList.objects.filter(
-            user=self.context.get('request').user).exists()
+        return (not self.context.get('request').user.is_anonymous
+                and FavoritesList.objects.filter(
+                user=self.context.get('request').user
+                ).exists()
+                )
 
     def get_is_in_shopping_cart(self, obj):
-        if self.context.get('request').user.is_anonymous:
-            return False
-        return ShoppingList.objects.filter(
-            user=self.context.get('request').user).exists()
+        return (not self.context.get('request').user.is_anonymous
+                and ShoppingList.objects.filter(
+                user=self.context.get('request').user
+                ).exists()
+                )

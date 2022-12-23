@@ -1,11 +1,10 @@
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
+from recipes.models import Ingredients, RecipeIngredients, Recipes, Tags
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
-
-from recipes.models import Ingredients, RecipeIngredients, Recipes, Tags
 from social.models import FavoritesList, FollowsList, ShoppingList
 from users.models import User
 

@@ -18,8 +18,7 @@ from .permissions import IsOwnerOrReadOnly
 from .serializers import (CreateRecipesSerializer, FavoriteListSerializer,
                           IngredientsSerializer, RecipeReadSerializer,
                           ShoppingListSerializer, SubscriptionsSerializer,
-                          TagsSerializer, UserPostCreateSerializer,
-                          UserSerializer)
+                          TagsSerializer, UserSerializer)
 
 
 class UserViewSet(UserViewSet):
@@ -27,22 +26,6 @@ class UserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     pagination_class = Pagination
-
-    def create(self, request):
-        if request.method == 'POST':
-            serializer = UserPostCreateSerializer(
-                data=request.data,
-                context={'request': request}
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(
-                serializer.data,
-                status=status.HTTP_201_CREATED
-            )
-        return Response(
-            status=status.HTTP_404_NOT_FOUND
-        )
 
     @action(
         detail=True,

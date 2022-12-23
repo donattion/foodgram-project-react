@@ -58,19 +58,6 @@ class UserCreateSerializer(UserCreateSerializer):
         )
 
 
-class UserPostCreateSerializer(UserSerializer):
-    """Сериализатор ответа после создания профиля"""
-    class Meta:
-        model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-        )
-
-
 class SubscriptionsSerializer(UserSerializer):
     """Сериализатор подписок"""
     recipes_count = SerializerMethodField()

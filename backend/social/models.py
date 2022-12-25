@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import CheckConstraint, F, Q, UniqueConstraint
+
 from recipes.models import Recipes
 from users.models import User
 

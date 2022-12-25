@@ -1,10 +1,11 @@
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import Ingredients, RecipeIngredients, Recipes, Tags
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
+
+from recipes.models import Ingredients, RecipeIngredients, Recipes, Tags
 from social.models import FavoritesList, FollowsList, ShoppingList
 from users.models import User
 
@@ -76,7 +77,7 @@ class SubscriptionsSerializer(UserSerializer):
         )
 
     def get_recipes_count(self, obj):
-        return obj.recipes.count()
+        return Recipes.objects.count()
 
     def get_recipes(self, obj):
         request = self.context.get('request')
@@ -149,6 +150,12 @@ class FavoriteListSerializer(serializers.ModelSerializer):
                 )
             return data
 
+    def to_representation(self, instance):
+        return RecipesFavoritesSerializer(
+            instance.recipe,
+            context={'request': self.context.get('request')}
+        ).data
+
 
 class ShoppingListSerializer(serializers.ModelSerializer):
     """Сериализатор списка покупок"""
@@ -186,10 +193,10 @@ class RecipeIngredientsSerializer(serializers.ModelSerializer):
         queryset=Ingredients.objects.all()
     )
     name = serializers.ReadOnlyField(
-        source='ingredients.name',
+        source='ingredient.name',
     )
     measurement_unit = serializers.ReadOnlyField(
-        source='ingredients.measurement_unit'
+        source='ingredient.measurement_unit'
     )
 
     class Meta:

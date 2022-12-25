@@ -81,7 +81,7 @@ class SubscriptionsSerializer(UserSerializer):
     def get_recipes(self, obj):
         request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
-        recipes = Recipes.objects.all()
+        recipes = Recipes.objects.filter(id=obj.id)
         if limit:
             recipes = recipes[: int(limit)]
         serializer = RecipeFieldsSerializer(

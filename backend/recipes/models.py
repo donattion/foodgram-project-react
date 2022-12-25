@@ -8,7 +8,7 @@ from users.models import User
 class Tags(models.Model):
     """Модель тегов"""
     name = models.CharField(
-        max_length=20,
+        max_length=30,
         unique=True,
         verbose_name='Название',
     )
@@ -41,11 +41,11 @@ class Tags(models.Model):
 class Ingredients(models.Model):
     """Модель ингредиентов"""
     name = models.CharField(
-        max_length=20,
+        max_length=100,
         verbose_name='Название',
     )
     measurement_unit = models.CharField(
-        max_length=20,
+        max_length=10,
         verbose_name='Единицы измерения',
     )
 

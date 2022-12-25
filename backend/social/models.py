@@ -26,6 +26,7 @@ class FavoritesList(models.Model):
                 name='unique_favorite'
             )
         ]
+        default_related_name = 'favorites'
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
 

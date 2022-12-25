@@ -174,26 +174,15 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def favorite(self, request, pk):
         recipe = get_object_or_404(Recipes, id=pk)
         user = request.user
-        if request.method == 'POST':
-            context = {"request": request}
-            data = {
-                'user': user.id,
-                'recipe': recipe.id
-            }
-            serializer = FavoriteListSerializer(data=data, context=context)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        if request.method == 'GET':
-            return FavoritesList.objects.get(
-                user=user,
-                recipe=recipe,
-            )
-
-        return Response(
-            status=status.HTTP_404_NOT_FOUND
-        )
+        context = {"request": request}
+        data = {
+            'user': user.id,
+            'recipe': recipe.id
+        }
+        serializer = FavoriteListSerializer(data=data, context=context)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @favorite.mapping.delete
     def destroy_favorite(self, request, pk):

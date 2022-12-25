@@ -20,7 +20,7 @@ class RecipesFilter(FilterSet):
         to_field_name='slug',
         queryset=Tags.objects.all(),
     )
-    is_favorited = filters.NumberFilter(
+    is_favorited = filters.BooleanFilter(
         method='filter_is_favorited'
     )
     is_in_shopping_cart = filters.NumberFilter(

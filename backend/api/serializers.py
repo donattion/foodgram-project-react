@@ -235,21 +235,21 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
 
     def validate_tags(self, tags):
         tags_ls = []
-        if tags:
-            for tag in tags:
-                if not Tags.objects.filter(id=tag.id).exists():
-                    raise serializers.ValidationError(
-                        'Этого тега не существует'
-                    )
-                if tag['id'] in tags_ls:
-                    raise serializers.ValidationError(
-                        'Этот тег уже есть'
-                    )
-                tags_ls.append(tag['id'])
-            return tags
-        raise serializers.ValidationError(
-            'Не указаны теги'
-        )
+        if not tags:
+            raise serializers.ValidationError(
+                'Не указаны теги'
+            )
+        for tag in tags:
+            if not Tags.objects.filter(id=tag.id).exists():
+                raise serializers.ValidationError(
+                    'Этого тега не существует'
+                )
+            if tag['id'] in tags_ls:
+                raise serializers.ValidationError(
+                    'Этот тег уже есть'
+                )
+            tags_ls.append(tag['id'])
+        return tags
 
     def validate_cooking_time(self, cooking_time: int):
         if cooking_time < 1:
@@ -262,8 +262,8 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
         ingredients_ls = []
         if not ingredients:
             raise serializers.ValidationError(
-            'Не указаны ингредиенты'
-        )
+                'Не указаны ингредиенты'
+            )
         for ingredient in ingredients:
             if not Ingredients.objects.filter(id=ingredient.id).exists():
                 raise serializers.ValidationError(

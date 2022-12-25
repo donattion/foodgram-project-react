@@ -81,7 +81,7 @@ class SubscriptionsSerializer(UserSerializer):
     def get_recipes(self, obj):
         request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
-        recipes = obj.recipes.all()
+        recipes = Recipes.objects.all()
         if limit:
             recipes = recipes[: int(limit)]
         serializer = RecipeFieldsSerializer(
@@ -96,7 +96,10 @@ class SubscriptionsSerializer(UserSerializer):
             'request').parser_context.get('kwargs').get('id')
         author = get_object_or_404(User, id=author_id)
         user = self.context.get('request').user
-        if user.follower.filter(author=author_id).exists():
+        if FollowsList.objects.filter(
+            user=user,
+            author=author_id,
+        ).exists():
             raise ValidationError(
                 detail='Данная подписка уже осуществлена',
                 code=status.HTTP_400_BAD_REQUEST,
@@ -142,8 +145,10 @@ class FavoriteListSerializer(serializers.ModelSerializer):
         )
 
         def validate(self, data):
-            user = data['user']
-            if user.favorites.filter(recipe=data['recipe']).exists:
+            if FavoritesList.objects.filter(
+                user=data['user'],
+                recipe=data['recipe'],
+            ).exists:
                 raise serializers.ValidationError(
                     'Этот рецепт уже находится в избранном'
                 )
@@ -166,8 +171,10 @@ class ShoppingListSerializer(serializers.ModelSerializer):
         )
 
         def validate(self, data):
-            user = data['user']
-            if user.shopping.filter(recipe=data['recipe']).exists():
+            if ShoppingList.objects.filter(
+                user = data['user'],
+                recipe=data['recipe'],
+            ).exists():
                 raise serializers.ValidationError(
                     'Этот рецепт уже находится в списке покупок'
                 )

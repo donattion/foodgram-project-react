@@ -10,7 +10,7 @@ SECRET_KEY = os.getenv('TOKEN', 'default-value')
 
 DEBUG = True
 
-POSTGRESQL = False
+POSTGRESQL = True
 
 ALLOWED_HOSTS = ['*']
 

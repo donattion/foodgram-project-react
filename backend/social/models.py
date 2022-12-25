@@ -16,7 +16,7 @@ class FavoritesList(models.Model):
         Recipes,
         on_delete=models.CASCADE,
         related_name='recipe',
-        verbose_name='Рецпет',
+        verbose_name='Рецепт',
     )
 
     class Meta:

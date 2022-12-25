@@ -9,13 +9,13 @@ class FavoritesList(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='adder',
+        related_name='favorites',
         verbose_name='Пользователь',
     )
     recipe = models.ForeignKey(
         Recipes,
         on_delete=models.CASCADE,
-        related_name='recipe',
+        related_name='favorites',
         verbose_name='Рецепт',
     )
 
@@ -26,7 +26,6 @@ class FavoritesList(models.Model):
                 name='unique_favorite'
             )
         ]
-        default_related_name = 'favorites'
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
 

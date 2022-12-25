@@ -244,11 +244,11 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     'Этого тега не существует'
                 )
-            if tag['id'] in tags_ls:
+            if tag in tags_ls:
                 raise serializers.ValidationError(
                     'Этот тег уже есть'
                 )
-            tags_ls.append(tag['id'])
+            tags_ls.append(tag)
         return tags
 
     def validate_cooking_time(self, cooking_time: int):
@@ -265,10 +265,6 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
                 'Не указаны ингредиенты'
             )
         for ingredient in ingredients:
-            if not Ingredients.objects.filter(id=ingredient.id).exists():
-                raise serializers.ValidationError(
-                    'Этого ингредиента не существует'
-                )
             if ingredient['id'] in ingredients_ls:
                 raise serializers.ValidationError(
                     'Этот ингредиент уже есть'
@@ -318,6 +314,7 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
 class RecipeReadSerializer(serializers.ModelSerializer):
     """Сериализатор для просмотра рецптов"""
     tags = TagsSerializer(
+        read_only=False,
         many=True,
     )
     author = UserSerializer(
@@ -328,7 +325,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         many=True,
         source='recipe_recipe',
     )
-    is_favorited = SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     image = Base64ImageField()
 

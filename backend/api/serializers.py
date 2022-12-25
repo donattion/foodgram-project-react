@@ -76,12 +76,12 @@ class SubscriptionsSerializer(UserSerializer):
         )
 
     def get_recipes_count(self, obj):
-        return obj.user.count()
+        return obj.recipes.count()
 
     def get_recipes(self, obj):
         request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
-        recipes = obj.user.all()
+        recipes = obj.recipes.all()
         if limit:
             recipes = recipes[: int(limit)]
         serializer = RecipeFieldsSerializer(
@@ -198,7 +198,7 @@ class RecipeIngredientsSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'measurement_unit',
-            'count',
+            'amount',
         )
 
 
@@ -260,21 +260,21 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
 
     def validate_ingredients(self, ingredients):
         ingredients_ls = []
-        if ingredients:
-            for ingredient in ingredients:
-                if not Ingredients.objects.filter(id=ingredient.id).exists():
-                    raise serializers.ValidationError(
-                        'Этого ингредиента не существует'
-                    )
-                if ingredient['id'] in ingredients_ls:
-                    raise serializers.ValidationError(
-                        'Этот ингредиент уже есть'
-                    )
-                ingredients_ls.append(ingredient['id'])
-            return ingredients
-        raise serializers.ValidationError(
+        if not ingredients:
+            raise serializers.ValidationError(
             'Не указаны ингредиенты'
         )
+        for ingredient in ingredients:
+            if not Ingredients.objects.filter(id=ingredient.id).exists():
+                raise serializers.ValidationError(
+                    'Этого ингредиента не существует'
+                )
+            if ingredient['id'] in ingredients_ls:
+                raise serializers.ValidationError(
+                    'Этот ингредиент уже есть'
+                )
+            ingredients_ls.append(ingredient['id'])
+        return ingredients
 
     @staticmethod
     def create_ingredients(recipe, ingredients):
@@ -283,7 +283,7 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
             ingredients_ls.append(
                 RecipeIngredients(
                     ingredient=ingredient.pop('id'),
-                    count=ingredient.pop('count'),
+                    amount=ingredient.pop('amount'),
                     recipe=recipe,
                 )
             )

@@ -54,7 +54,7 @@ class Ingredients(models.Model):
         verbose_name_plural = 'Игнредиенты'
 
     def __str__(self) -> str:
-        return self.name
+        return f'{self.name}, {self.measurement_unit}'
 
 
 class Recipes(models.Model):
@@ -126,7 +126,7 @@ class RecipeIngredients(models.Model):
         verbose_name='Рецепт',
         related_name='recipe_recipe',
     )
-    count = models.PositiveSmallIntegerField(
+    amount = models.PositiveSmallIntegerField(
         validators=[
             MinValueValidator(
                 1,
@@ -144,5 +144,5 @@ class RecipeIngredients(models.Model):
     def __str__(self):
         return (
             f'{self.ingredient.name} :: {self.ingredient.measurement_unit}'
-            f' - {self.count}'
+            f' - {self.amount}'
         )

@@ -134,7 +134,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         ).order_by('ingredient__name').values(
             'ingredient__name',
             'ingredient__measurement_unit',
-        ).annotate(amount=Sum('count'))
+        ).annotate(amount=Sum('amount'))
         return self.send_message(ingredients)
 
     @staticmethod
@@ -144,7 +144,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
             shopping_list += (
                 f"\n{ingredient['ingredient__name']} "
                 f"({ingredient['ingredient__measurement_unit']}) - "
-                f"{ingredient['count']}"
+                f"{ingredient['amount']}"
             )
         file = 'shopping_list'
         response = HttpResponse(shopping_list, content_type='text/plain')

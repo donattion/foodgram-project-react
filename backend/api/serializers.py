@@ -172,7 +172,7 @@ class ShoppingListSerializer(serializers.ModelSerializer):
 
         def validate(self, data):
             if ShoppingList.objects.filter(
-                user = data['user'],
+                user=data['user'],
                 recipe=data['recipe'],
             ).exists():
                 raise serializers.ValidationError(

@@ -5,12 +5,12 @@ from rest_framework.filters import SearchFilter
 
 class IngredientsFilter(SearchFilter):
     """Фильтр ингредиентов"""
-    search_param = 'title'
+    search_param = 'name'
 
     class Meta:
         model = Ingredients
         fields = (
-            'title',
+            'name',
         )
 
 
@@ -24,7 +24,7 @@ class RecipesFilter(FilterSet):
         method='filter_is_favorited'
     )
     is_in_shopping_list = filters.NumberFilter(
-        method='filter_is_in_shopping_list'
+        method='filter_is_in_shopping_cart'
     )
 
     class Meta:
@@ -33,7 +33,7 @@ class RecipesFilter(FilterSet):
             'tags',
             'author',
             'is_favorited',
-            'is_in_shopping_list',
+            'is_in_shopping_cart',
         )
 
     def filter_is_favorited(self, queryset, title, value):
@@ -43,9 +43,9 @@ class RecipesFilter(FilterSet):
             )
         return queryset
 
-    def filter_is_in_shopping_list(self, queryset, title, value):
+    def filter_is_in_shopping_cart(self, queryset, title, value):
         if value and self.request.user.is_authenticated:
             return queryset.filter(
-                shopping_list__user=self.request.user
+                shopping__user=self.request.user
             )
         return queryset

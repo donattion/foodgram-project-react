@@ -103,7 +103,7 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (
         IngredientsFilter,
     )
-    search_fields = ('^title')
+    search_fields = ('^name',)
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
@@ -116,6 +116,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     filter_backends = (
         DjangoFilterBackend,
     )
+    serializer_class = CreateRecipesSerializer
     filterset_class = RecipesFilter
 
     def get_serializer_class(self):
@@ -162,7 +163,10 @@ class RecipesViewSet(viewsets.ModelViewSet):
             'user': request.user.id,
             'recipe': recipe.id
         }
-        serializer = ShoppingListSerializer(data=data, context=context)
+        serializer = ShoppingListSerializer(
+            data=data,
+            context=context
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)

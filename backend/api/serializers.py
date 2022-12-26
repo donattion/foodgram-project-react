@@ -76,7 +76,7 @@ class SubscriptionsSerializer(UserSerializer):
         )
 
     def get_recipes_count(self, obj):
-        return Recipes.objects.filter(id=obj.id).count()
+        return obj.recipes.count()
 
     def get_recipes(self, obj):
         request = self.context.get('request')
@@ -291,19 +291,19 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def create_ingredients(recipe, ingredients):
-        ingredients_ls = []
+        ingredients_list = []
         for ingredient in ingredients:
-            ingredients_ls.append(
+            ingredients_list.append(
                 RecipeIngredients(
                     ingredient=ingredient.pop('id'),
                     amount=ingredient.pop('amount'),
                     recipe=recipe,
                 )
             )
-        RecipeIngredients.objects.bulk_create(ingredients_ls)
+        RecipeIngredients.objects.bulk_create(ingredients_list)
 
     def create(self, validated_data):
-        request = self.context.get('request')
+        request = self.context.get('request', None)
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         recipe = Recipes.objects.create(

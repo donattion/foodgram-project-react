@@ -81,7 +81,7 @@ class SubscriptionsSerializer(UserSerializer):
     def get_recipes(self, obj):
         request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
-        recipes = Recipes.objects.filter(id=obj.id)
+        recipes = obj.recipes.all()
         if limit:
             recipes = recipes[: int(limit)]
         serializer = RecipeFieldsSerializer(
@@ -316,7 +316,7 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance.tags.clear()
-        RecipeIngredients.objects.filter(recipe=instance).delete()
+        RecipeIngredients.objects.filter(recipe=instance.recipe).delete()
         instance.tags.set(validated_data.pop('tags'))
         ingredients = validated_data.pop('ingredients')
         self.create_ingredients(instance, ingredients)

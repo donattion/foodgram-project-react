@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import CheckConstraint, F, Q, UniqueConstraint
 from recipes.models import Recipes
@@ -44,6 +45,12 @@ class FollowsList(models.Model):
         related_name='following',
         verbose_name='Подписка',
     )
+
+    def clean(self):
+        if self.user == self.author:
+            raise ValidationError(
+                'Пользователь не может быть подписан на самого себя'
+            )
 
     class Meta:
         constraints = [

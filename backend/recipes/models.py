@@ -5,6 +5,14 @@ from django.db import models
 from users.models import User
 
 
+class UpperField(ColorField):
+    def __init__(self, *args, **kwargs):
+        super(UpperField, self).__init__(*args, **kwargs)
+
+    def get_prep_value(self, value):
+        return str(value).upper()
+
+
 class Tags(models.Model):
     """Модель тегов"""
     name = models.CharField(
@@ -12,7 +20,7 @@ class Tags(models.Model):
         unique=True,
         verbose_name='Название',
     )
-    color = ColorField(
+    color = UpperField(
         format='hex',
         max_length=7,
         unique=True,
@@ -140,6 +148,12 @@ class RecipeIngredients(models.Model):
         ordering = ('-id',)
         verbose_name = 'Ингредиент рецепта'
         verbose_name_plural = 'Ингредиенты рецепта'
+        constraints = [
+            models.UniqueConstraint(
+                fields=('ingredient', 'recipe',),
+                name='unique_ingredients_amount_for_recipe'
+            )
+        ]
 
     def __str__(self):
         return (

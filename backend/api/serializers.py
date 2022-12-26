@@ -76,7 +76,7 @@ class SubscriptionsSerializer(UserSerializer):
         )
 
     def get_recipes_count(self, obj):
-        return Recipes.objects.count()
+        return Recipes.objects.filter(id=obj.id).count()
 
     def get_recipes(self, obj):
         request = self.context.get('request')
@@ -268,6 +268,10 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
         if cooking_time < 1:
             raise serializers.ValidationError(
                 'Время приготовления должно быть как минимум 1 минуту'
+            )
+        if cooking_time > 1440:
+            raise serializers.ValidationError(
+                'Время приготовления должно быть максимум 24 часа'
             )
         return cooking_time
 

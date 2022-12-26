@@ -330,12 +330,16 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance.tags.clear()
-        RecipeIngredients.objects.filter(recipe=instance).delete()
+        for ing in validated_data.pop('ingredients'):
+            if ing not in instance.ingredients:
+                self.create_ingredients(
+                    ingredients=ing,
+                    recipe=instance
+                )
+        for ing1 in instance.ingredients:
+            if ing1 not in validated_data.pop('ingredients'):
+                RecipeIngredients.objects.filter(ingredient=ing1).delete()
         self.create_tags(validated_data.pop('tags'), instance)
-        self.create_ingredients(
-            ingredients=validated_data.pop('ingredients'),
-            recipe=instance
-        )
         return super().update(instance, validated_data)
 
 

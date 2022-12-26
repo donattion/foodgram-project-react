@@ -319,7 +319,6 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
         self.create_ingredients(instance, ingredients)
         return super().update(instance, validated_data)
 
-
 class RecipeReadSerializer(serializers.ModelSerializer):
     """Сериализатор для просмотра рецптов"""
     tags = TagsSerializer(
@@ -354,7 +353,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         )
 
     def get_ingredients(self, obj):
-        ingredients = obj.recipe_recipe.filter(id=obj.id)
+        ingredients = RecipeIngredients.objects.filter(recipe=obj)
         return RecipeIngredientsSerializer(
             ingredients,
             many=True

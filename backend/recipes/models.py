@@ -122,7 +122,7 @@ class Recipes(models.Model):
 
 class RecipeIngredients(models.Model):
     """Модель ингридиентов рецепта"""
-    id = models.IntegerField(
+    ingredient_id = models.IntegerField(
         default=1,
         primary_key=True,
     )

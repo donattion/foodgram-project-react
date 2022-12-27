@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
@@ -7,7 +8,6 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
 from social.models import FavoritesList, FollowsList, ShoppingList
 from users.models import User
-from django.db import transaction
 
 
 class RecipesFavoritesSerializer(serializers.ModelSerializer):
@@ -228,9 +228,9 @@ class AddIngredientSerializer(serializers.ModelSerializer):
         fields = ('id', 'amount')
 
 
-class AddIngredientSerializer(serializers.ModelSerializer):
+class CreateRecipesSerializer(serializers.ModelSerializer):
     """Сериализатор создания рецептов"""
-    ingredients = RecipeIngredientsSerializer(
+    ingredients = AddIngredientSerializer(
         many=True,
     )
     tags = serializers.PrimaryKeyRelatedField(
@@ -315,8 +315,10 @@ class AddIngredientSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        recipe = Recipes.objects.create(author=user,
-                                       **validated_data)
+        recipe = Recipes.objects.create(
+            author=user,
+            **validated_data
+        )
         recipe.tags.set(tags)
         self.get_ingredients(recipe, ingredients)
 

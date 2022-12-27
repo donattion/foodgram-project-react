@@ -122,15 +122,10 @@ class Recipes(models.Model):
 
 class RecipeIngredients(models.Model):
     """Модель ингридиентов рецепта"""
-    ingredient_id = models.IntegerField(
-        default=1,
-        primary_key=True,
-    )
     ingredient = models.ForeignKey(
         Ingredients,
         on_delete=models.CASCADE,
         verbose_name='Ингредиент',
-        related_name='recipe_ingredients',
     )
     recipe = models.ForeignKey(
         Recipes,
@@ -149,7 +144,7 @@ class RecipeIngredients(models.Model):
     )
 
     class Meta:
-        ordering = ('-ingredient_id',)
+        ordering = ('-id',)
         verbose_name = 'Ингредиент рецепта'
         verbose_name_plural = 'Ингредиенты рецепта'
         constraints = [

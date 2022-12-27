@@ -49,6 +49,7 @@ class RecipesAdmin(admin.ModelAdmin):
 
 class RecipeIngredientsAdmin(admin.ModelAdmin):
     list_display = (
+        'id',
         'ingredient',
         'recipe',
     )

@@ -328,7 +328,7 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         context = self.context['request']
         tags_set = context.data['tags']
-        ingredients_req = context.data['ingredients']
+        ingredients = context.data['ingredients']
         recipe = instance
         instance.name = validated_data.get('name', instance.name)
         instance.text = validated_data.get('text', instance.text)
@@ -338,15 +338,8 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
         instance.image = validated_data.get('image', instance.image)
         instance.save()
         instance.tags.set(tags_set)
-        instance.ingredients.set(ingredients_req)
-        for ingredient in ingredients_req:
-            ingredient_model = Ingredients.objects.get(name=ingredient['name'])
-            RecipeIngredients.objects.create(
-                recipe=recipe,
-                ingredient=ingredient_model,
-                amount=ingredient['amount'],
-            )
-        RecipeIngredients.objects.filter(recipe=instance).delete()
+        instance.ingredients.set(ingredients)
+        self.get_ingredients(recipe, ingredients)
         return instance
 
     def to_representation(self, instance):

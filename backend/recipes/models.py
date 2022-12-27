@@ -122,7 +122,10 @@ class Recipes(models.Model):
 
 class RecipeIngredients(models.Model):
     """Модель ингридиентов рецепта"""
-    id = models.IntegerField(default=1)
+    id = models.IntegerField(
+        default=1,
+        primary_key=True,
+    )
     ingredient = models.ForeignKey(
         Ingredients,
         on_delete=models.CASCADE,

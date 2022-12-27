@@ -337,7 +337,6 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
         instance.image = validated_data.get('image', instance.image)
         instance.save()
         instance.tags.set(tags_set)
-        RecipeIngredients.objects.filter(recipe=instance).delete()
         ingredients_req = context.data['ingredients']
         for ingredient in ingredients_req:
             ingredient_model = Ingredients.objects.get(id=ingredient['id'])
@@ -346,6 +345,7 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
                 ingredient=ingredient_model,
                 amount=ingredient['amount'],
             )
+        RecipeIngredients.objects.filter(recipe=instance).delete()
         return instance
 
     def to_representation(self, instance):

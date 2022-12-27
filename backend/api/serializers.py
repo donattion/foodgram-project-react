@@ -193,18 +193,6 @@ class RecipeFieldsSerializer(serializers.ModelSerializer):
         )
 
 
-class AddIngredientSerializer(serializers.ModelSerializer):
-    """Сериализатор для добавления Ингредиентов"""
-    id = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredients.objects.all()
-    )
-    amount = serializers.IntegerField()
-
-    class Meta:
-        model = RecipeIngredients
-        fields = ('id', 'amount')
-
-
 class RecipeIngredientsSerializer(serializers.ModelSerializer):
     """Сериализатор ингридентов рецепта"""
     id = serializers.PrimaryKeyRelatedField(
@@ -229,7 +217,7 @@ class RecipeIngredientsSerializer(serializers.ModelSerializer):
 
 class CreateRecipesSerializer(serializers.ModelSerializer):
     """Сериализатор создания рецептов"""
-    ingredients = AddIngredientSerializer(
+    ingredients = RecipeIngredientsSerializer(
         many=True,
     )
     tags = serializers.PrimaryKeyRelatedField(
@@ -319,12 +307,10 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
         recipe = Recipes.objects.create(author=request.user, **validated_data)
         recipe.tags.set(tags)
         self.create_ingredients(recipe, ingredients)
-        recipe.save()
         return recipe
 
     def update(self, instance, validated_data):
         instance.tags.clear()
-        instance.ingredients.clear()
         RecipeIngredients.objects.filter(recipe=instance).delete()
         instance.tags.set(validated_data.pop('tags'))
         ingredients = validated_data.pop('ingredients')

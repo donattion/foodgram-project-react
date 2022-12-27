@@ -310,37 +310,38 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
             )
 
     @staticmethod
-    def create_tags(tags, recipe):
-        for tag in tags:
-            recipe.tags.add(tag)
+    def create_ingredients(recipe, ingredients):
+        ingredient_liist = []
+        for ingredient_data in ingredients:
+            ingredient_liist.append(
+                RecipeIngredients(
+                    ingredient=ingredient_data.pop('id'),
+                    amount=ingredient_data.pop('amount'),
+                    recipe=recipe,
+                )
+            )
+        RecipeIngredients.objects.bulk_create(ingredient_liist)
 
     def create(self, validated_data):
-        author = self.context.get('request').user
+        request = self.context.get('request', None)
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        recipe = Recipes.objects.create(author=author, **validated_data)
-        self.create_tags(tags, recipe)
-        self.create_ingredients(ingredients, recipe)
+        recipe = Recipes.objects.create(author=request.user, **validated_data)
+        recipe.tags.set(tags)
+        self.create_ingredients(recipe, ingredients)
         return recipe
-
-    def to_representation(self, instance):
-        request = self.context.get('request')
-        context = {'request': request}
-        return RecipeReadSerializer(instance, context=context).data
 
     def update(self, instance, validated_data):
         instance.tags.clear()
-        for ing in validated_data.pop('ingredients'):
-            if ing not in instance.ingredients:
-                self.create_ingredients(
-                    ingredients=ing,
-                    recipe=instance
-                )
-        for ing1 in instance.ingredients:
-            if ing1 not in validated_data.pop('ingredients'):
-                RecipeIngredients.objects.filter(ingredient=ing1).delete()
-        self.create_tags(validated_data.pop('tags'), instance)
-        return super().update(instance, validated_data)
+        RecipeIngredients.objects.filter(recipe=instance).delete()
+        instance.tags.set(validated_data.pop('tags'))
+        ingredients = validated_data.pop('ingredients')
+        return self.create_ingredients(instance, ingredients)
+
+    def to_representation(self, instance):
+        return RecipeReadSerializer(instance, context={
+            'request': self.context.get('request')
+        }).data
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):

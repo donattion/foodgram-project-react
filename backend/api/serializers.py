@@ -302,14 +302,6 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
         return ingredients
 
     @staticmethod
-    def create_ingredients(ingredients, recipe):
-        for ingredient in ingredients:
-            RecipeIngredients.objects.create(
-                recipe=recipe, ingredient=ingredient['id'],
-                amount=ingredient['amount']
-            )
-
-    @staticmethod
     def create_ingredients(recipe, ingredients):
         ingredient_liist = []
         for ingredient_data in ingredients:

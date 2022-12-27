@@ -295,11 +295,11 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
                 'Не указаны ингредиенты'
             )
         for ingredient in ingredients:
-            if ingredient['id'] in ingredients_ls:
+            if ingredient in ingredients_ls:
                 raise serializers.ValidationError(
                     'Этот ингредиент уже есть'
                 )
-            ingredients_ls.append(ingredient['id'])
+            ingredients_ls.append(ingredient)
         return ingredients
 
     def get_ingredients(self, recipe, ingredients):

@@ -331,18 +331,17 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
         instance.text = validated_data.get("text", instance.text)
         instance.ingredients = validated_data.get(
             "ingredients",
-            instance.ingredients
+            instance.ingredients.set()
         )
         instance.image = validated_data.get("image", instance.image)
-        instance.ingredients = validated_data.get(
-            "ingredients",
-            instance.ingredients
-        )
         instance.cooking_time = validated_data.get(
             "cooking_time",
             instance.cooking_time
         )
-        instance.tags = validated_data.get("tags", instance.tags)
+        instance.tags = validated_data.get(
+            "tags",
+            instance.tags.set()
+        )
         instance.author = validated_data.get("author", instance.author)
         instance.save()
         self.get_ingredients(instance, instance.ingredients)

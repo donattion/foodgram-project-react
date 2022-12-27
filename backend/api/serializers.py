@@ -1,4 +1,3 @@
-from django.db import transaction
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
@@ -216,21 +215,9 @@ class RecipeIngredientsSerializer(serializers.ModelSerializer):
         )
 
 
-class AddIngredientSerializer(serializers.ModelSerializer):
-    """Сериализатор для добавления ингредиента при создании рецепта."""
-    id = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredients.objects.all(),
-        source='ingredient'
-    )
-
-    class Meta:
-        model = RecipeIngredients
-        fields = ('id', 'amount')
-
-
 class CreateRecipesSerializer(serializers.ModelSerializer):
     """Сериализатор создания рецептов"""
-    ingredients = AddIngredientSerializer(
+    ingredients = RecipeIngredientsSerializer(
         many=True,
     )
     tags = serializers.PrimaryKeyRelatedField(
@@ -310,7 +297,6 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
                 amount=ingredient.get('amount')
             ) for ingredient in ingredients)
 
-    @transaction.atomic
     def create(self, validated_data):
         user = self.context.get('request').user
         tags = validated_data.pop('tags')
@@ -324,9 +310,11 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
 
         return recipe
 
-    @transaction.atomic
     def update(self, instance, validated_data):
         RecipeIngredients.objects.filter(recipe=instance).delete()
+        ingredients = validated_data.pop('ingredients')
+        recipe = instance
+        self.get_ingredients(recipe, ingredients)
         instance.tags.clear()
         instance.ingredients.clear()
         instance.name = validated_data.get('name', instance.name)
@@ -338,9 +326,6 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
         instance.tags.set(validated_data.pop('tags'))
         instance.ingredients.set(validated_data.pop('ingredients'))
         instance.save()
-        ingredients = validated_data.pop('ingredients')
-        recipe = instance
-        self.get_ingredients(recipe, ingredients)
         return instance
 
     def to_representation(self, instance):

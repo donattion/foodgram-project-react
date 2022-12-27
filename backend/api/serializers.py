@@ -340,7 +340,7 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
         instance.tags.set(tags_set)
         instance.ingredients.set(ingredients_req)
         for ingredient in ingredients_req:
-            ingredient_model = Ingredients.objects.get(id=ingredient['id'])
+            ingredient_model = Ingredients.objects.get(name=ingredient['name'])
             RecipeIngredients.objects.create(
                 recipe=recipe,
                 ingredient=ingredient_model,

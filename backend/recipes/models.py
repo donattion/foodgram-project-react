@@ -149,7 +149,7 @@ class RecipeIngredients(models.Model):
     )
 
     class Meta:
-        ordering = ('-id',)
+        ordering = ('-ingredient_id',)
         verbose_name = 'Ингредиент рецепта'
         verbose_name_plural = 'Ингредиенты рецепта'
         constraints = [

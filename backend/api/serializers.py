@@ -327,8 +327,8 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def update(self, instance, validated_data):
         context = self.context['request']
-        ingredients = validated_data.pop('recipe_ingredients')
         tags_set = context.data['tags']
+        ingredients = context.data['ingredients']
         recipe = instance
         instance.name = validated_data.get('name', instance.name)
         instance.text = validated_data.get('text', instance.text)

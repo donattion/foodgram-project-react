@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
@@ -290,29 +291,25 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
             ingredients_ls.append(ingredient)
         return ingredients
 
-    @staticmethod
-    def create_ingredients(recipe, ingredients):
-        ingredient_liist = []
-        for ingredient_data in ingredients:
-            ingredient_model = Ingredients.objects.get(
-                ingredient=ingredient_data['ingredients']
-            )
-            ingredient_liist.append(
-                RecipeIngredients(
-                    ingredient=ingredient_model,
-                    amount=ingredient_data.pop('amount'),
-                    recipe=recipe,
-                )
-            )
-        RecipeIngredients.objects.bulk_create(ingredient_liist)
-
     def create(self, validated_data):
-        request = self.context.get('request', None)
+        context = self.context['request']
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
-        recipe = Recipes.objects.create(author=request.user, **validated_data)
+        try:
+            recipe = Recipes.objects.create(
+                **validated_data,
+                author=self.context.get('request').user
+            )
+        except IntegrityError:
+            pass
         recipe.tags.set(tags)
-        self.create_ingredients(recipe, ingredients)
+        ingredients_set = context.data['ingredients']
+        for ingredient in ingredients_set:
+            ingredient_model = Ingredients.objects.get(id=ingredient['id'])
+            RecipeIngredients.objects.create(
+                recipe=recipe,
+                ingredient=ingredient_model,
+                amount=ingredient['amount'],
+            )
         return recipe
 
     def update(self, instance, validated_data):

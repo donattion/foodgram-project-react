@@ -295,11 +295,11 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
                 'Не указаны ингредиенты'
             )
         for ingredient in ingredients:
-            if ingredient['name'] in ingredients_ls:
+            if ingredient['ingredient'] in ingredients_ls:
                 raise serializers.ValidationError(
                     'Этот ингредиент уже есть'
                 )
-            ingredients_ls.append(ingredient['name'])
+            ingredients_ls.append(ingredient['ingredient'])
         return ingredients
 
     @staticmethod

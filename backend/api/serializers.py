@@ -297,11 +297,11 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
                     'Ингредиенты повторяются'
                 )
             ingredients_ls.append(ingredient['id'])
-        if len(ingredients_ls) > 5:
+        if len(ingredients_ls) > 6:
             raise ValidationError(
-                'Количество ингредиентов больше 5'
+                'Количество ингредиентов больше 6'
             )
-        return ingredients
+        return data
 
     @staticmethod
     def create_ingredients(ingredients, recipe):

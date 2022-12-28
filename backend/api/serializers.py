@@ -296,7 +296,7 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
         for ingredient_data in ingredients:
             ingredient_liist.append(
                 RecipeIngredients(
-                    ingredient=ingredient_data,
+                    ingredient=ingredient_data.pop['ingredients'],
                     amount=ingredient_data.pop('amount'),
                     recipe=recipe,
                 )

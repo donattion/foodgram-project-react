@@ -295,6 +295,8 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
                 'Не указаны ингредиенты'
             )
         for ingredient in ingredients:
+            print('sdsd')
+            ingredients_ls.append(Ingredients.objects.get(id=ingredient['id']))
             if ingredient in ingredients_ls:
                 raise serializers.ValidationError(
                     'Этот ингредиент уже есть'

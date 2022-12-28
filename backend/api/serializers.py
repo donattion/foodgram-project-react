@@ -292,10 +292,10 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         context = self.context['request']
-        request = self.context.get('request', None)
-        tags = validated_data.pop('tags')
-        recipe = Recipes.objects.create(author=request.user, **validated_data)
-        recipe.tags.set(tags)
+        recipe = Recipes.objects.create(
+            **validated_data,
+            author=self.context.get('request').user
+        )
         ingredients_set = context.data['ingredients']
         for ingredient in ingredients_set:
             ingredient_model = Ingredients.objects.get(id=ingredient['id'])

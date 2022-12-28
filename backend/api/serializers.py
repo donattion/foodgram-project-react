@@ -196,7 +196,8 @@ class RecipeFieldsSerializer(serializers.ModelSerializer):
 class RecipeIngredientsSerializer(serializers.ModelSerializer):
     """Сериализатор ингридентов рецепта"""
     id = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredients.objects.all()
+        queryset=Ingredients.objects.all(),
+        source='ingredient.id'
     )
     name = serializers.ReadOnlyField(
         source='ingredient.name',

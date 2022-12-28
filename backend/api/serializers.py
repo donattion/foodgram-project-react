@@ -294,7 +294,7 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
         for ingredient in ingredients:
             if ingredient in ingredients_ls:
                 raise ValidationError(
-                    ingredient.items()
+                    ingredient['id']
                 )
             ingredients_ls.append(ingredient)
         return ingredients

@@ -288,18 +288,15 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
             )
         return cooking_time
 
-    def validate_ingredients(self, ingredients):
+    def validate(self, data):
+        ingredients = data['ingredients']
         ingredients_ls = []
-        if not ingredients:
-            raise serializers.ValidationError(
-                'Не указаны ингредиенты'
-            )
         for ingredient in ingredients:
-            if ingredient['ingredient'] in ingredients_ls:
-                raise serializers.ValidationError(
-                    'Этот ингредиент уже есть'
+            if ingredient in ingredients_ls:
+                raise ValidationError(
+                    'ывывы'
                 )
-            ingredients_ls.append(ingredient['ingredient'])
+            ingredients_ls.append(ingredient)
         return ingredients
 
     @staticmethod

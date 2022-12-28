@@ -295,11 +295,11 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
                 'Не указаны ингредиенты'
             )
         for ingredient in ingredients:
-            if ingredient in ingredients_ls:
+            if ingredient.name in ingredients_ls:
                 raise serializers.ValidationError(
                     'Этот ингредиент уже есть'
                 )
-            ingredients_ls.append(ingredient)
+            ingredients_ls.append(ingredient.name)
         return ingredients
 
     @staticmethod
@@ -334,13 +334,7 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
         instance.tags.set(tags_set)
         RecipeIngredients.objects.filter(recipe=instance).delete()
         ingredients_req = context.data['ingredients']
-        ingredients_ls = []
         for ingredient in ingredients_req:
-            if ingredient in ingredients_ls:
-                raise serializers.ValidationError(
-                    'Этот ингредиент уже есть'
-                )
-            ingredients_ls.append(ingredient)
             ingredient_model = Ingredients.objects.get(id=ingredient['id'])
             RecipeIngredients.objects.create(
                 recipe=recipe,

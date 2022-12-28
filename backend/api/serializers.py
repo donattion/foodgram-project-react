@@ -293,6 +293,7 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         context = self.context['request']
+        ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         try:
             recipe = Recipes.objects.create(
@@ -302,6 +303,7 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
         except IntegrityError:
             pass
         recipe.tags.set(tags)
+        recipe.ingredients.set(ingredients)
         ingredients_set = context.data['ingredients']
         for ingredient in ingredients_set:
             ingredient_model = Ingredients.objects.get(id=ingredient['id'])

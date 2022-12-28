@@ -292,11 +292,11 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
         ingredients = data['ingredients']
         ingredients_ls = []
         for ingredient in ingredients:
-            if ingredient['ingredient'] in ingredients_ls:
+            if ingredient in ingredients_ls:
                 raise ValidationError(
-                    'ывывы'
+                    ingredient
                 )
-            ingredients_ls.append(ingredient['ingredient'])
+            ingredients_ls.append(ingredient)
         return ingredients
 
     @staticmethod

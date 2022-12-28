@@ -291,27 +291,26 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
             ingredients_ls.append(ingredient)
         return ingredients
 
+    @staticmethod
+    def create_ingredients(recipe, ingredients):
+        ingredient_liist = []
+        for ingredient_data in ingredients:
+            ingredient_liist.append(
+                RecipeIngredients(
+                    ingredient=ingredient_data.pop('Ingredients'),
+                    amount=ingredient_data.pop('amount'),
+                    recipe=recipe,
+                )
+            )
+        RecipeIngredients.objects.bulk_create(ingredient_liist)
+
     def create(self, validated_data):
-        context = self.context['request']
-        ingredients = validated_data.pop('ingredients')
+        request = self.context.get('request', None)
         tags = validated_data.pop('tags')
-        try:
-            recipe = Recipes.objects.create(
-                **validated_data,
-                author=self.context.get('request').user
-            )
-        except IntegrityError:
-            pass
+        ingredients = validated_data.pop('ingredients')
+        recipe = Recipes.objects.create(author=request.user, **validated_data)
         recipe.tags.set(tags)
-        recipe.ingredients.set(ingredients)
-        ingredients_set = context.data['ingredients']
-        for ingredient in ingredients_set:
-            ingredient_model = Ingredients.objects.get(id=ingredient['id'])
-            RecipeIngredients.objects.create(
-                recipe=recipe,
-                ingredient=ingredient_model,
-                amount=ingredient['amount'],
-            )
+        self.create_ingredients(recipe, ingredients)
         return recipe
 
     def update(self, instance, validated_data):

@@ -292,11 +292,11 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
         ingredients = data['ingredients']
         ingredients_ls = []
         for ingredient in ingredients:
-            if ingredient in ingredients_ls:
+            if ingredient.split(',')[0] in ingredients_ls:
                 raise ValidationError(
-                    ingredient
+                    'Ингредиенты повторяются'
                 )
-            ingredients_ls.append(ingredient)
+            ingredients_ls.append(ingredient.split(',')[0])
         return ingredients
 
     @staticmethod

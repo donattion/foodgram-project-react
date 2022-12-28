@@ -291,10 +291,18 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
     def validate(self, data):
         ingredients = data['ingredients']
         ingredients_ls = []
+        if not ingredients:
+            raise ValidationError(
+                'Отсутствуют ингредиенты'
+            )
         for ingredient in ingredients:
             if ingredient['id'] in ingredients_ls:
                 raise ValidationError(
                     'Ингредиенты повторяются'
+                )
+            if int(ingredient['amount']) < 1:
+                raise ValidationError(
+                    'Количество ингредиента должно быть больше 0'
                 )
             ingredients_ls.append(ingredient['id'])
         if len(ingredients_ls) > 6:

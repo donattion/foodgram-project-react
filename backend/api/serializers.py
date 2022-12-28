@@ -297,12 +297,10 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
                     'Ингредиенты повторяются'
                 )
             ingredients_ls.append(ingredient['id'])
-            count +=1
-            if count > 5:
-                raise ValidationError(
-                    'Ингредиентов не может быть больше 5'
-                )
-
+        if len(ingredients_ls) > 5:
+            raise ValidationError(
+                'Количество ингредиентов больше 5'
+            )
         return ingredients
 
     @staticmethod

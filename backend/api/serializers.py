@@ -216,9 +216,21 @@ class RecipeIngredientsSerializer(serializers.ModelSerializer):
         )
 
 
+class AddIngredientSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для добавления Ингредиентов
+    """
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredients.objects.all())
+    amount = serializers.IntegerField()
+
+    class Meta:
+        model = RecipeIngredients
+        fields = ('id', 'amount')
+
+
 class CreateRecipesSerializer(serializers.ModelSerializer):
     """Сериализатор создания рецептов"""
-    ingredients = RecipeIngredientsSerializer(
+    ingredients = AddIngredientSerializer(
         many=True,
     )
     tags = serializers.PrimaryKeyRelatedField(
@@ -291,25 +303,20 @@ class CreateRecipesSerializer(serializers.ModelSerializer):
         return ingredients
 
     @staticmethod
-    def create_ingredients(recipe, ingredients):
-        ingredient_liist = []
-        for ingredient_data in ingredients:
-            ingredient_liist.append(
-                RecipeIngredients(
-                    ingredient=ingredient_data.pop('Ingredients'),
-                    amount=ingredient_data.pop('amount'),
-                    recipe=recipe,
-                )
+    def create_ingredients(ingredients, recipe):
+        for ingredient in ingredients:
+            RecipeIngredients.objects.create(
+                recipe=recipe, ingredient=ingredient['id'],
+                amount=ingredient['amount']
             )
-        RecipeIngredients.objects.bulk_create(ingredient_liist)
 
     def create(self, validated_data):
-        request = self.context.get('request', None)
+        author = self.context.get('request').user
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        recipe = Recipes.objects.create(author=request.user, **validated_data)
+        recipe = Recipes.objects.create(author=author, **validated_data)
         recipe.tags.set(tags)
-        self.create_ingredients(recipe, ingredients)
+        self.create_ingredients(ingredients, recipe)
         return recipe
 
     def update(self, instance, validated_data):
